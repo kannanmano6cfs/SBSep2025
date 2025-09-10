@@ -5,3 +5,6 @@ Simple MVC application in Spring Boot
 
 Day 5:
 --------
+Use Employee Management System for Spring Data JPA
+Explore HSQL Db 
+Use REST GET and POST methods
