@@ -1,7 +1,14 @@
 package com.example.EmployeeService.Model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
+@Entity
 public class Employee {
 
+    @Id
+    @GeneratedValue
     private int empid;
     private String empname;
     private int empage;
