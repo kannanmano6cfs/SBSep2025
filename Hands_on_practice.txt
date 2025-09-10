@@ -5,6 +5,11 @@ Simple MVC application in Spring Boot
 
 Day 5:
 --------
+FN:
 Use Employee Management System for Spring Data JPA
 Explore HSQL Db 
 Use REST GET and POST methods
+AN:
+Practice with PUT and DELETE Methods
+Practice with all custom quereies
+Practice with Inter-service Communication
