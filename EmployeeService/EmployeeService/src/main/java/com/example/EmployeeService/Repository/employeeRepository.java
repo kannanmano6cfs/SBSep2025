@@ -18,4 +18,7 @@ public interface employeeRepository extends JpaRepository<Employee, Integer> {
     //Custom Query Method for Native Query
     @Query(value="select empid,empname,empage from employee where empname Like %:word%", nativeQuery = true)
     Optional<Employee> findByEmpnameLike(@Param("word") String word);
+
+    //Custom Query Method for Employee details deletion by name
+    void deleteByEmpname(String name);
 }
