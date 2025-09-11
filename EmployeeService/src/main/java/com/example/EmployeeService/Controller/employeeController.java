@@ -1,14 +1,22 @@
 package com.example.EmployeeService.Controller;
 
+import com.example.EmployeeService.Exception.EmployeeNotFoundException;
 import com.example.EmployeeService.Model.Employee;
 import com.example.EmployeeService.Repository.employeeRepository;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.util.Optional;
 
@@ -39,8 +47,8 @@ public class employeeController {
 
     // Data JPA Rest Methods
     //To Display all the employee details
-    @GetMapping("/employees")
-    public Iterable<Employee> employees() {
+    @GetMapping("/employees/v1")
+    public Iterable<Employee> employeesV1() {
         return repo.findAll();
     }
 
@@ -52,10 +60,12 @@ public class employeeController {
     }
 
     //To display the employee by empID (PathVariable)
+    //Exception Handling Demo
+
     @GetMapping("/employee/v1/{id}")
     public Employee getEmployee(@PathVariable int id) {
         Optional<Employee> emp=repo.findById(id);
-        return emp.orElse(null);
+        return emp.orElseThrow(()-> new EmployeeNotFoundException(id));
     }
 
     //To display the employee by empname (RequestParam)
@@ -74,12 +84,14 @@ public class employeeController {
 
     //Post Methods
     @PostMapping("/new/v1")
+    @CacheEvict(value="allemps", allEntries=true)
     public ResponseEntity<String> api2(@RequestBody Employee emp){
         repo.save(emp);
         return new ResponseEntity<String>("New Employee details added successfully" , HttpStatus.OK);
     }
 
     @PostMapping("/new/v2")
+    @CacheEvict(value="allemps", allEntries=true)
     public ResponseEntity<String> newemp(){
         Employee emp=new Employee();
         emp.setEmpname("Abhijit");
@@ -119,24 +131,50 @@ public class employeeController {
     //        return new ResponseEntity<>("Employee details deleted successfully" , HttpStatus.OK);
     //    }
 
-    //Inter-Service Communication
+    //Inter-Service Communication  and Request Retry using Resilience4J
     private static final String deptsvc_API="http://localhost:8082/newemp";
+    int attempt=1;
 
     @GetMapping("/selectemp/{id}")
     @Transactional
+    @Retry(name="retry1", fallbackMethod = "fallback")
     public ResponseEntity<String> selectEmployee(@PathVariable int id) {
+
+        System.out.println("Employee selection request sent for HR "+attempt++);
         Optional<Employee> emp=repo.findById(id);
 
         ResponseEntity<String> response=restTemplate.postForEntity(deptsvc_API,emp,String.class);
-
+        System.out.println("Employee assigned as HR successfully");
         return response;
     }
+
+    //Fallback Method for Retry
+    public ResponseEntity<String> fallback(Throwable ex){
+        System.out.println("Unable to place the request");
+        return new ResponseEntity<>("Sorry!! Department Service unavailable!!" , HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
     //Caching
+    @GetMapping("/employees/v2")
+    @Cacheable(value="allemps")
+    public Iterable<Employee> employeesV2() {
+        return repo.findAll();
+    }
+
+    //Pagination
+    @GetMapping("/employees/v3")
+    public Page<Employee> employeesV3(@PageableDefault(size=3) Pageable pageable) {
+        return repo.findAll(pageable);
+    }
 
     //Filtering
-
-    //Paging
-
+    @GetMapping("/search")
+    public ResponseEntity<Page<Employee>> employeesV4(@RequestParam String name, Pageable pageable) {
+        return ResponseEntity.ok(repo.findByEmpnameContainingIgnoreCase(name,pageable));
+    }
     //Request Validation
+
+    //Testing
 
 }

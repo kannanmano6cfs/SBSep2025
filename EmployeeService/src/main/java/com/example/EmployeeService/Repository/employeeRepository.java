@@ -1,6 +1,8 @@
 package com.example.EmployeeService.Repository;
 
 import com.example.EmployeeService.Model.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,4 +23,8 @@ public interface employeeRepository extends JpaRepository<Employee, Integer> {
 
     //Custom Query Method for Employee details deletion by name
     void deleteByEmpname(String name);
+
+    //Method for Filtering and Pagination demo
+    Page<Employee> findByEmpnameContainingIgnoreCase(String word, Pageable pageable);
+
 }
