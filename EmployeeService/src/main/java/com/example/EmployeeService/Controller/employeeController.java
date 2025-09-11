@@ -5,6 +5,7 @@ import com.example.EmployeeService.Model.Employee;
 import com.example.EmployeeService.Repository.employeeRepository;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -174,7 +175,17 @@ public class employeeController {
         return ResponseEntity.ok(repo.findByEmpnameContainingIgnoreCase(name,pageable));
     }
     //Request Validation
+    @PostMapping("/new/v3")
+    public ResponseEntity<String> api3(@Valid @RequestBody Employee emp){
+        repo.save(emp);
+        return new ResponseEntity<String>("New Employee details added successfully" , HttpStatus.OK);
+    }
+
 
     //Testing
+    @GetMapping("/count/v1")
+    public long empcount(){
+        return repo.count();
+    }
 
 }

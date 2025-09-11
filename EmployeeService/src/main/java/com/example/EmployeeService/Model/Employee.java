@@ -1,8 +1,11 @@
 package com.example.EmployeeService.Model;
 
+import com.example.EmployeeService.util.ValidEmpName;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 public class Employee {
@@ -10,7 +13,9 @@ public class Employee {
     @Id
     @GeneratedValue
     private int empid;
+    @ValidEmpName
     private String empname;
+    @Positive(message="Age should be in absolute value!!")
     private int empage;
 
     public Employee() {
