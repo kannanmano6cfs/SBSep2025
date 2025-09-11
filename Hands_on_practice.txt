@@ -13,3 +13,11 @@ AN:
 Practice with PUT and DELETE Methods
 Practice with all custom quereies
 Practice with Inter-service Communication
+
+
+Day 6:
+------
+FN:
+Practice with Retry
+Caching, Pagination and Filtering in REST API's
+Work with Exception Handling
